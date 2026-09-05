@@ -92,9 +92,9 @@ Three adversarial probe passes found — and the engine now closes —
   interactive-shell, `ZDOTDIR`+zsh, and `.git/hooks/*` write-time carriers
   now ask (`GGD-DEF-003/004`, `GGE-CLI-012..017`, `GGW-CONTENT`). No policy
   change: the generated block is byte-identical. Deny legs verified live;
-  shell asks are engine-verified but the `permission.evaluate` prompt
-  channel appears inert on beta-19151 (no evaluations logged; pre-existing
-  asks degrade identically) — see verification-log 2026-09-05.
+  shell asks are engine-verified but `ask` verdicts set through
+  `permission.evaluate` are ignored on beta-19151 (hooks fire, `deny` is
+  honored, `ask` executes as if allowed — see verification-log 2026-09-05).
 
 Full tables with rule IDs and FP boundaries: the 2026-09-04b/-c/-d entries
 in [docs/verification-log.md](verification-log.md).

@@ -91,14 +91,18 @@ below):
   verified unmodified. Ask-tier guard-source append deliberately NOT
   executed live (it would run under the degraded channel); covered in-suite.
 
-Beta-19151 channel observation (deployment drift, NOT a provenance bug):
-`cat ~/.zshenv` (ask-tier since E9) executes silently and no permission
-evaluation appears in the service log anymore (June logs show per-command
-`evaluated permission=…`; September shows none), while `execute.before`
-blocks still fire. So on this beta the `permission.evaluate` prompt channel
-appears inert: every shell ASK degrades to silent allow. This affects the
-entire pre-existing ask surface equally (glob asks, reader asks, history
-asks — not just the 0.6.0 rules). Deny-tier enforcement is unaffected.
+Beta-19151 channel observation (deployment drift, NOT a provenance bug,
+verified with a minimal tap plugin — see anomalyco/opencode#NEXT):
+`permission.evaluate` hooks DO fire on 19151 (shell resources arrive
+pre-segmented, one per `;`-segment), and `deny` verdicts are honored
+(`permission.rejected` with the plugin message). But an `ask` verdict set
+by a hook — even directly, with a message, by a 10-line plugin with no
+other logic — is IGNORED: execution proceeds as if allowed, and no prompt
+ever surfaces. The service log shows no permission evaluations at all
+(June logs show per-command `evaluated permission=…`). So on this beta
+every shell ASK degrades to silent allow. This affects the entire
+pre-existing ask surface equally (glob asks, reader asks, history asks —
+not just the 0.6.0 rules). Deny-tier enforcement is unaffected.
 If the channel returns in a later beta, the ask-tier enforcement points
 (verified in-engine) resume without code changes; if it stays dead,
 critical shell asks should be promoted to `execute.before` blocks (the
