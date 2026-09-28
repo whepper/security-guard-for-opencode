@@ -63,7 +63,8 @@ test("execute.before blocks denied-class MCP calls mechanically", async () => {
   const { ctx, hooks } = makeCtx()
   // Blocked-trust server delivered through the sibling-config override
   // mechanism (SG_CONFIG_FILE), mirroring real deployments.
-  const cfgPath = path.join(tmpdir(), `sg-cfg-${Date.now()}.json`)
+  const cfgDir = mkdtempSync(path.join(tmpdir(), "sg-cfg-"))
+  const cfgPath = path.join(cfgDir, "config.json")
   writeFileSync(
     cfgPath,
     JSON.stringify({ mcpServers: { legacy: { trust: "blocked", reason: "test fixture" } } })
@@ -82,7 +83,7 @@ test("execute.before blocks denied-class MCP calls mechanically", async () => {
     )
   } finally {
     delete process.env.SG_CONFIG_FILE
-    rmSync(cfgPath, { force: true })
+    rmSync(cfgDir, { recursive: true, force: true })
   }
 })
 

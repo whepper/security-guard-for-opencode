@@ -4168,7 +4168,7 @@ export function applyGuardOverride(basePolicy, override) {
 // OpenCode V2 adapter
 // ============================================================================
 
-import { mkdirSync, writeFileSync, readFileSync, realpathSync, statSync } from "node:fs"
+import { mkdirSync, writeFileSync, readFileSync, realpathSync, openSync, fstatSync, closeSync } from "node:fs"
 import { homedir } from "node:os"
 import path from "node:path"
 
@@ -4263,9 +4263,23 @@ export default {
         const expanded =
           p === "~" ? homedir() : p.startsWith("~/") ? path.join(homedir(), p.slice(2)) : p
         if (!expanded) return null
-        const st = statSync(expanded, { throwIfNoEntry: false })
-        if (!st || !st.isFile() || st.size > 32768) return null
-        return readFileSync(expanded, "utf8").slice(0, 32768)
+        let fd = null
+        try {
+          fd = openSync(expanded, "r")
+        } catch {
+          return null
+        }
+        try {
+          const st = fstatSync(fd)
+          if (!st.isFile() || st.size > 32768) return null
+          return readFileSync(fd, "utf8").slice(0, 32768)
+        } finally {
+          if (fd !== null) {
+            try {
+              closeSync(fd)
+            } catch {}
+          }
+        }
       } catch {
         return null
       }
